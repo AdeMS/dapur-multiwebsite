@@ -1,0 +1,74 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * Perintah pengelolaan multi-website Dapur AdeMS. Jalankan dari folder inti:
+ *
+ *   vendor/bin/dapur-website daftar
+ *   vendor/bin/dapur-website clear-config-cache --semua
+ */
+
+declare(strict_types=1);
+
+use AdeMS\Dapur\MultiWebsite\Bootstrap;
+use AdeMS\Dapur\MultiWebsite\PencariWebsite;
+
+require $GLOBALS['_composer_autoload_path'] ?? dirname(__DIR__, 3) . '/autoload.php';
+
+$folderInti = Bootstrap::folderInti();
+$daftar     = Bootstrap::bacaDaftar($folderInti);
+if ($daftar === null) {
+    fwrite(STDERR, 'Multi-website belum aktif: ' . Bootstrap::FILE_DAFTAR . ' tidak ditemukan.' . PHP_EOL);
+    exit(1);
+}
+
+$semua   = (new PencariWebsite($daftar, $folderInti))->semua();
+$perintah = $argv[1] ?? '';
+
+switch ($perintah) {
+    case 'daftar':
+        foreach ($semua as $nama => $website) {
+            printf("%-40s %s%s", $nama, $website?->folderConfig ?? '(folder tidak ditemukan)', PHP_EOL);
+        }
+        exit(0);
+
+    case 'clear-config-cache':
+        if (! in_array('--semua', $argv, true)) {
+            fwrite(STDERR, 'Pakai --semua untuk menghapus cache konfigurasi inti dan semua website.' . PHP_EOL
+                . 'Untuk satu website: composer clear-config-cache -- --website=<domain>' . PHP_EOL);
+            exit(1);
+        }
+
+        $file = ['(inti)' => $folderInti . '/data/cache/config-cache.php'];
+        foreach ($semua as $nama => $website) {
+            if ($website !== null) {
+                $file[$nama] = $website->fileCacheKonfigurasi();
+            }
+        }
+
+        $gagal = false;
+        foreach ($file as $nama => $path) {
+            if (! is_file($path)) {
+                printf("%-40s tidak ada cache%s", $nama, PHP_EOL);
+            } elseif (unlink($path)) {
+                printf("%-40s dihapus%s", $nama, PHP_EOL);
+            } else {
+                printf("%-40s GAGAL dihapus (%s)%s", $nama, $path, PHP_EOL);
+                $gagal = true;
+            }
+        }
+        exit($gagal ? 1 : 0);
+
+    default:
+        echo <<<BANTUAN
+            Pemakaian: vendor/bin/dapur-website <perintah>
+
+              daftar                         Menampilkan website yang terdaftar dan yang terpusat
+              clear-config-cache --semua     Menghapus cache konfigurasi inti dan semua website
+
+            Website folder domain yang tidak terdaftar tidak ikut; daftarkan di
+            config/multiwebsite.local.php agar bisa dikelola dari sini.
+
+            BANTUAN;
+        exit($perintah === '' ? 0 : 1);
+}
