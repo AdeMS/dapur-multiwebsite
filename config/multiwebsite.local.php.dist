@@ -18,12 +18,13 @@ return [
     // mendapat halaman "website tidak ditemukan", bukan dashboard.
     'dashboard' => ['dashboard.contoh.com'],
 
-    // Website yang dilayani. Kuncinya adalah nama host utama website.
+    // Website yang dilayani. Kuncinya adalah nama website = domain utamanya.
+    // 'alias' berisi domain lain (boleh lebih dari satu) yang membuka website yang sama.
     'website' => [
         // Mode folder domain: website punya folder sendiri berisi public/, config/, module/, data/.
         'contoh.com' => [
             'lokasi' => '/var/www/contoh.com',
-            'alias'  => ['www.contoh.com'],
+            'alias'  => ['www.contoh.com', 'contoh.co.id', 'www.contoh.co.id'],
         ],
 
         // Mode terpusat: tanpa 'lokasi', konfigurasi website berada di config/website/<host>/
