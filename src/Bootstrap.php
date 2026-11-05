@@ -26,15 +26,10 @@ final class Bootstrap
         }
 
         $folderInti = self::folderInti();
-        $fileDaftar = $folderInti . '/' . self::FILE_DAFTAR;
-        if (! is_file($fileDaftar)) {
+        $daftar     = self::bacaDaftar($folderInti);
+        if ($daftar === null) {
             // Multi-website belum diaktifkan: Dapur berjalan sebagai satu website.
             return;
-        }
-
-        $daftar = require $fileDaftar;
-        if (! is_array($daftar)) {
-            Halaman::konfigurasiTidakValid($fileDaftar);
         }
 
         $cli  = PHP_SAPI === 'cli';
@@ -66,6 +61,12 @@ final class Bootstrap
             Halaman::websiteTidakDitemukan($host);
         }
 
+        // Inti lama (sebelum 2.4) mengabaikan konstanta di bawah, sehingga semua website akan
+        // menampilkan inti. Lebih baik berhenti dengan pesan kesalahan.
+        if (! self::intiMendukung($folderInti)) {
+            Halaman::intiTidakMendukung();
+        }
+
         Website::aktifkan($website);
         PemuatModul::daftarkan($website->folderModul);
 
@@ -81,6 +82,39 @@ final class Bootstrap
         $folder = InstalledVersions::getRootPackage()['install_path'];
 
         return rtrim((string) (realpath($folder) ?: $folder), '/');
+    }
+
+    /**
+     * Isi config/multiwebsite.local.php, atau null bila file itu tidak ada (multi-website tidak aktif).
+     * Isi yang bukan array menghentikan request/perintah dengan pesan kesalahan.
+     *
+     * @return array<mixed>|null
+     */
+    public static function bacaDaftar(string $folderInti): ?array
+    {
+        $file = $folderInti . '/' . self::FILE_DAFTAR;
+        if (! is_file($file)) {
+            return null;
+        }
+
+        $daftar = require $file;
+        if (! is_array($daftar)) {
+            Halaman::konfigurasiTidakValid($file);
+        }
+
+        return $daftar;
+    }
+
+    /**
+     * Apakah config/config.php inti memiliki kait lapisan website (Dapur 2.4 atau lebih baru).
+     * Diperiksa dari isi file karena versi inti tidak selalu diketahui Composer
+     * (instalasi create-project tidak memiliki .git).
+     */
+    public static function intiMendukung(string $folderInti): bool
+    {
+        $isi = @file_get_contents($folderInti . '/config/config.php');
+
+        return is_string($isi) && str_contains($isi, 'DAPUR_CONFIG_PROVIDERS');
     }
 
     private static function hostDariRequest(): string
