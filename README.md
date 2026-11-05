@@ -10,7 +10,8 @@ Dapur berjalan sebagai satu website seperti biasa.
 ## Persyaratan
 
 - Dapur AdeMS 2.4 atau lebih baru (memiliki kait `DAPUR_CONFIG_CACHE_PATH` dan
-  `DAPUR_CONFIG_PROVIDERS` di `config/config.php`)
+  `DAPUR_CONFIG_PROVIDERS` di `config/config.php`). Pada inti yang lebih lama, website ditolak
+  dengan pesan kesalahan agar tidak diam-diam menampilkan inti untuk semua domain.
 - PHP 8.2 sampai 8.5
 
 ## Instalasi
@@ -84,6 +85,10 @@ Host yang tidak dikenal, termasuk akses lewat alamat IP, mendapat halaman
 3. Folder domain yang memanggil inti lewat `public/index.php` miliknya.
 
 Yang dikelola di inti selalu menang atas folder domain.
+
+Nama website folder domain yang tidak terdaftar diambil dari **nama foldernya**, bukan dari
+request, karena header `Host` bisa diisi apa saja oleh pengirim. Karena itu nama folder harus
+berupa nama domain, misalnya `/var/www/contoh.com`.
 
 ## Susunan folder website
 
@@ -182,6 +187,16 @@ perintah.
 Setelah mengubah `config/multiwebsite.local.php`, `website.php`, daftar modul, atau
 `config/autoload/` website, hapus cache konfigurasi website tersebut.
 
+## Perintah `dapur-website`
+
+```bash
+vendor/bin/dapur-website daftar                       # website terdaftar dan terpusat
+vendor/bin/dapur-website clear-config-cache --semua   # hapus cache konfigurasi inti dan semua website
+```
+
+Website folder domain yang tidak terdaftar tidak ikut; daftarkan di `config/multiwebsite.local.php`
+agar bisa dikelola dari sini.
+
 ## Izin folder
 
 Folder `data/` website diisi oleh web server (cache konfigurasi juga memuat password database):
@@ -191,6 +206,13 @@ Folder `data/` website diisi oleh web server (cache konfigurasi juga memuat pass
   dijalankan di sana.
 
 Folder `data/cache/app` dibuat otomatis bila belum ada.
+
+## Pengembangan
+
+```bash
+composer install
+composer test
+```
 
 ## Lisensi
 
