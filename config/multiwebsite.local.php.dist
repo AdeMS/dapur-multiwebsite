@@ -18,18 +18,19 @@ return [
     // mendapat halaman "website tidak ditemukan", bukan dashboard.
     'dashboard' => ['dashboard.contoh.com'],
 
-    // Website yang dilayani. Nama website sama dengan nama domainnya; setiap domain
-    // (termasuk www.) adalah website tersendiri. Untuk menyatukan www.contoh.com dengan
-    // contoh.com, alihkan salah satunya di web server.
+    // Website yang dilayani. Kuncinya adalah nama host utama website.
     'website' => [
         // Mode folder domain: website punya folder sendiri berisi public/, config/, module/, data/.
         'contoh.com' => [
             'lokasi' => '/var/www/contoh.com',
+            'alias'  => ['www.contoh.com'],
         ],
 
-        // Mode terpusat: tanpa 'lokasi', konfigurasi website berada di config/website/<domain>/
-        // dan datanya di data/website/<domain>/ milik inti. Website terpusat juga ditemukan
-        // otomatis bila foldernya ada, walau tidak dicantumkan di sini.
-        'blog.contoh.com' => [],
+        // Mode terpusat: tanpa 'lokasi', konfigurasi website berada di config/website/<host>/
+        // dan datanya di data/website/<host>/ milik inti. Website terpusat juga ditemukan
+        // otomatis bila foldernya ada, walau tidak dicantumkan di sini; cantumkan bila perlu alias.
+        'blog.contoh.com' => [
+            'alias' => ['www.blog.contoh.com'],
+        ],
     ],
 ];
