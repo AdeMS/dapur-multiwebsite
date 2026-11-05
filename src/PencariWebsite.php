@@ -11,6 +11,8 @@ namespace AdeMS\Dapur\MultiWebsite;
  * 1. daftar 'website' di config/multiwebsite.local.php (nama host atau alias);
  * 2. folder terpusat config/website/<host>/ di inti;
  * 3. folder domain yang dinyatakan oleh index.php website (konstanta DAPUR_WEBSITE_PATH).
+ *    Nama website diambil dari nama folder tersebut, bukan dari request, karena header Host
+ *    bisa diisi apa saja oleh pengirim request.
  */
 final class PencariWebsite
 {
@@ -52,12 +54,39 @@ final class PencariWebsite
             return $website;
         }
 
-        // 3. Folder domain yang memanggil inti
+        // 3. Folder domain yang memanggil inti; namanya dari nama folder, bukan dari request.
         if ($folderDomain !== null && $folderDomain !== '' && is_dir($folderDomain)) {
-            return Website::dariFolderDomain($host, $folderDomain);
+            $nama = NamaHost::normalkan(basename(rtrim($folderDomain, '/')));
+
+            return $nama !== null ? Website::dariFolderDomain($nama, $folderDomain) : null;
         }
 
         return null;
+    }
+
+    /**
+     * Semua website yang bisa diketahui dari inti: yang terdaftar dan yang terpusat.
+     * Website folder domain yang tidak terdaftar tidak bisa diketahui dari inti.
+     *
+     * @return array<string, Website|null> nama website => Website (null bila foldernya tidak ada)
+     */
+    public function semua(): array
+    {
+        $hasil = [];
+        foreach ($this->websiteTerdaftar() as $nama => $data) {
+            $hasil[$nama] = $this->buat($nama, $data);
+        }
+
+        foreach (glob($this->folderInti . '/config/website/*', GLOB_ONLYDIR) ?: [] as $folder) {
+            $nama = NamaHost::normalkan(basename($folder));
+            if ($nama !== null && ! array_key_exists($nama, $hasil)) {
+                $hasil[$nama] = Website::dariInti($nama, $this->folderInti);
+            }
+        }
+
+        ksort($hasil);
+
+        return $hasil;
     }
 
     /** @return array<string, array<mixed>> nama website (sudah dinormalkan) => pengaturannya */
