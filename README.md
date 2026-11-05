@@ -45,34 +45,29 @@ return [
         // Mode folder domain
         'contoh.com' => [
             'lokasi' => '/var/www/contoh.com',
+            'alias'  => ['www.contoh.com'],
         ],
 
         // Mode terpusat (tanpa 'lokasi')
-        'blog.contoh.com' => [],
+        'blog.contoh.com' => [
+            'alias' => ['www.blog.contoh.com'],
+        ],
     ],
 ];
 ```
 
 - **`dashboard`**: host yang menampilkan inti. Dashboard hanya dilayani lewat `public/` inti,
   tidak lewat folder website mana pun.
-- **`website`**: nama website sama dengan nama domainnya. `lokasi` menunjuk folder website dalam
-  mode folder domain.
-
-Setiap domain, termasuk `www.`, adalah website tersendiri. Untuk menyatukan `www.contoh.com`
-dengan `contoh.com`, alihkan salah satunya di web server, misalnya lewat `.htaccess`:
-
-```apache
-RewriteCond %{HTTP_HOST} ^www\.contoh\.com$ [NC]
-RewriteRule ^ https://contoh.com%{REQUEST_URI} [L,R=301]
-```
+- **`website`**: kuncinya nama host utama. `alias` membuka website yang sama (cache dan datanya
+  tetap satu). `lokasi` menunjuk folder website dalam mode folder domain.
 
 Host yang tidak dikenal, termasuk akses lewat alamat IP, mendapat halaman
 **"Website tidak ditemukan"** (kode 404) tanpa memuat konfigurasi apa pun.
 
 ### Urutan pencarian website
 
-1. Daftar `website` di `config/multiwebsite.local.php`.
-2. Folder terpusat `config/website/<domain>/` di inti.
+1. Daftar `website` di `config/multiwebsite.local.php` (nama host atau alias).
+2. Folder terpusat `config/website/<host>/` di inti.
 3. Folder domain yang memanggil inti lewat `public/index.php` miliknya.
 
 Yang dikelola di inti selalu menang atas folder domain.
