@@ -32,29 +32,18 @@ final class PencariWebsite
 
     public function cari(string $host, ?string $folderDomain = null): ?Website
     {
-        // 1. Daftar website
-        $semua = $this->daftar['website'] ?? [];
-        foreach (is_array($semua) ? $semua : [] as $nama => $data) {
-            $nama = NamaHost::normalkan((string) $nama);
-            $data = is_array($data) ? $data : [];
-            if ($nama === null) {
-                continue;
+        // 1. Daftar website: nama website selalu menang atas alias website lain,
+        //    tidak bergantung pada urutan penulisan. Satu website boleh punya banyak alias.
+        $terdaftar = $this->websiteTerdaftar();
+        if (isset($terdaftar[$host])) {
+            return $this->buat($host, $terdaftar[$host]);
+        }
+
+        foreach ($terdaftar as $nama => $data) {
+            if (in_array($host, $this->normalkanSemua($data['alias'] ?? []), true)) {
+                // Dibuka lewat alias tetap memakai nama website, sehingga cache dan datanya satu.
+                return $this->buat($nama, $data);
             }
-
-            if ($host !== $nama && ! in_array($host, $this->normalkanSemua($data['alias'] ?? []), true)) {
-                continue;
-            }
-
-            // Website yang terdaftar memakai nama utamanya, termasuk saat dibuka lewat alias,
-            // sehingga cache dan datanya tetap satu.
-            $lokasi = $data['lokasi'] ?? null;
-            if (is_string($lokasi) && $lokasi !== '') {
-                return is_dir($lokasi) ? Website::dariFolderDomain($nama, $lokasi) : null;
-            }
-
-            $website = Website::dariInti($nama, $this->folderInti);
-
-            return is_dir($website->folderConfig) ? $website : null;
         }
 
         // 2. Folder terpusat di inti
@@ -69,6 +58,34 @@ final class PencariWebsite
         }
 
         return null;
+    }
+
+    /** @return array<string, array<mixed>> nama website (sudah dinormalkan) => pengaturannya */
+    private function websiteTerdaftar(): array
+    {
+        $semua = $this->daftar['website'] ?? [];
+        $hasil = [];
+        foreach (is_array($semua) ? $semua : [] as $nama => $data) {
+            $nama = NamaHost::normalkan((string) $nama);
+            if ($nama !== null && ! isset($hasil[$nama])) {
+                $hasil[$nama] = is_array($data) ? $data : [];
+            }
+        }
+
+        return $hasil;
+    }
+
+    /** @param array<mixed> $data */
+    private function buat(string $nama, array $data): ?Website
+    {
+        $lokasi = $data['lokasi'] ?? null;
+        if (is_string($lokasi) && $lokasi !== '') {
+            return is_dir($lokasi) ? Website::dariFolderDomain($nama, $lokasi) : null;
+        }
+
+        $website = Website::dariInti($nama, $this->folderInti);
+
+        return is_dir($website->folderConfig) ? $website : null;
     }
 
     /** @return list<string> */
