@@ -1,0 +1,36 @@
+<?php
+
+/**
+ * Daftar website untuk paket adems/dapur-multiwebsite.
+ *
+ * Salin file ini ke config/multiwebsite.local.php di folder inti Dapur, lalu sesuaikan.
+ * File tersebut diabaikan Git karena berisi nama domain dan lokasi folder server Anda.
+ * Selama file itu tidak ada, Dapur berjalan sebagai satu website seperti biasa.
+ *
+ * Setelah mengubah file ini, jalankan `composer clear-config-cache` untuk setiap website
+ * yang terpengaruh (lihat README paket).
+ */
+
+declare(strict_types=1);
+
+return [
+    // Host yang menampilkan inti Dapur (dashboard). Host lain yang tidak terdaftar
+    // mendapat halaman "website tidak ditemukan", bukan dashboard.
+    'dashboard' => ['dashboard.contoh.com'],
+
+    // Website yang dilayani. Kuncinya adalah nama host utama website.
+    'website' => [
+        // Mode folder domain: website punya folder sendiri berisi public/, config/, module/, data/.
+        'contoh.com' => [
+            'lokasi' => '/var/www/contoh.com',
+            'alias'  => ['www.contoh.com'],
+        ],
+
+        // Mode terpusat: tanpa 'lokasi', konfigurasi website berada di config/website/<host>/
+        // dan datanya di data/website/<host>/ milik inti. Website terpusat juga ditemukan
+        // otomatis bila foldernya ada, walau tidak dicantumkan di sini; cantumkan bila perlu alias.
+        'blog.contoh.com' => [
+            'alias' => ['www.blog.contoh.com'],
+        ],
+    ],
+];
