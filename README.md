@@ -45,7 +45,7 @@ return [
         // Mode folder domain
         'contoh.com' => [
             'lokasi' => '/var/www/contoh.com',
-            'alias'  => ['www.contoh.com'],
+            'alias'  => ['www.contoh.com', 'contoh.co.id', 'www.contoh.co.id'],
         ],
 
         // Mode terpusat (tanpa 'lokasi')
@@ -58,8 +58,21 @@ return [
 
 - **`dashboard`**: host yang menampilkan inti. Dashboard hanya dilayani lewat `public/` inti,
   tidak lewat folder website mana pun.
-- **`website`**: kuncinya nama host utama. `alias` membuka website yang sama (cache dan datanya
-  tetap satu). `lokasi` menunjuk folder website dalam mode folder domain.
+- **`website`**: kuncinya nama website, yaitu domain utamanya. `lokasi` menunjuk folder website
+  dalam mode folder domain.
+- **`alias`**: domain lain yang membuka website yang sama, boleh lebih dari satu. Cache dan data
+  website tetap satu, dan `$config['website']['host']` tetap berisi nama website. Nama website
+  selalu menang atas alias website lain; bila satu alias tercantum di dua website, yang pertama
+  ditulis yang dipakai.
+
+> Untuk website publik, mesin pencari menganggap alias sebagai salinan halaman yang sama.
+> Bila itu tidak diinginkan, alihkan alias ke domain utama di web server, misalnya lewat
+> `.htaccess`:
+>
+> ```apache
+> RewriteCond %{HTTP_HOST} !^contoh\.com$ [NC]
+> RewriteRule ^ https://contoh.com%{REQUEST_URI} [L,R=301]
+> ```
 
 Host yang tidak dikenal, termasuk akses lewat alamat IP, mendapat halaman
 **"Website tidak ditemukan"** (kode 404) tanpa memuat konfigurasi apa pun.
