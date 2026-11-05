@@ -1,0 +1,36 @@
+{
+    "name": "adems/dapur-multiwebsite",
+    "description": "Modul multi-website untuk Dapur AdeMS: satu inti Dapur melayani banyak website",
+    "type": "library",
+    "license": "BSD-3-Clause",
+    "keywords": [
+        "dapur",
+        "adems",
+        "laminas",
+        "mezzio",
+        "multiwebsite",
+        "multisite"
+    ],
+    "homepage": "https://www.adems.id",
+    "authors": [
+        {
+            "name": "Ade M Saragih",
+            "homepage": "https://www.adems.id"
+        }
+    ],
+    "require": {
+        "php": "~8.2.0 || ~8.3.0 || ~8.4.0 || ~8.5.0",
+        "composer-runtime-api": "^2.0",
+        "laminas/laminas-config-aggregator": "^1.20",
+        "mezzio/mezzio": "^3.28",
+        "psr/container": "^1.1 || ^2.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "AdeMS\\Dapur\\MultiWebsite\\": "src/"
+        },
+        "files": [
+            "bootstrap.php"
+        ]
+    }
+}
