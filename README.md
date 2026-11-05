@@ -16,11 +16,18 @@ Dapur berjalan sebagai satu website seperti biasa.
 
 ## Instalasi
 
-Jalankan di folder inti Dapur:
+Di folder inti Dapur, tambahkan paket ke `composer.local.json` (buat bila belum ada), bukan ke
+`composer.json`, agar `composer.json` inti tetap sama dengan rilis Dapur:
 
-```bash
-composer require adems/dapur-multiwebsite
+```json
+{
+    "require": {
+        "adems/dapur-multiwebsite": "^1.0"
+    }
+}
 ```
+
+Lalu jalankan `composer update`.
 
 Paket bekerja otomatis lewat autoload Composer; tidak perlu didaftarkan di
 `config/modul.local.php`. Multi-website aktif setelah daftar website dibuat:
