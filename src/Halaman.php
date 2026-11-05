@@ -30,6 +30,16 @@ final class Halaman
             . '<title>Kesalahan konfigurasi</title><p>Konfigurasi multi-website tidak valid.</p></html>');
     }
 
+    public static function intiTidakMendukung(): never
+    {
+        if (PHP_SAPI === 'cli') {
+            self::keluarCli('Inti Dapur belum mendukung multi-website; perbarui ke Dapur AdeMS 2.4 atau lebih baru.');
+        }
+
+        self::kirim(500, '<!DOCTYPE html><html lang="id"><meta charset="utf-8">'
+            . '<title>Kesalahan konfigurasi</title><p>Konfigurasi multi-website tidak valid.</p></html>');
+    }
+
     private static function kirim(int $kode, string $html): never
     {
         if (! headers_sent()) {
