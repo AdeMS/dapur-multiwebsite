@@ -14,7 +14,7 @@ final class PencariWebsiteTest extends TestCase
     protected function setUp(): void
     {
         $this->folder = sys_get_temp_dir() . '/dapur-multiwebsite-uji-' . bin2hex(random_bytes(6));
-        foreach (['inti/config/website/terpusat.uji', 'a.uji/config', 'x.uji/config', 'domain.uji/public'] as $sub) {
+        foreach (['inti/config/website/terpusat.uji', 'a.uji/config', 'x.uji/config'] as $sub) {
             mkdir($this->folder . '/' . $sub, 0777, true);
         }
     }
@@ -47,13 +47,21 @@ final class PencariWebsiteTest extends TestCase
         self::assertSame($this->folder . '/a.uji/data/cache/config-cache.php', $website->fileCacheKonfigurasi());
     }
 
-    public function testWebsiteTerpusatDitemukanTanpaDidaftarkan(): void
+    public function testWebsiteTerpusatTerdaftar(): void
     {
-        $website = $this->pencari()->cari('terpusat.uji');
+        $website = $this->pencari(['terpusat.uji' => []])->cari('terpusat.uji');
 
         self::assertNotNull($website);
         self::assertSame($this->folder . '/inti/config/website/terpusat.uji', $website->folderConfig);
         self::assertSame($this->folder . '/inti/data/website/terpusat.uji', $website->folderData);
+    }
+
+    public function testFolderTerpusatTanpaPendaftaranTidakDitemukan(): void
+    {
+        $pencari = $this->pencari();
+
+        self::assertNull($pencari->cari('terpusat.uji'));
+        self::assertNull($pencari->namaTerdaftar('terpusat.uji'));
     }
 
     public function testBanyakAliasMembukaWebsiteYangSama(): void
@@ -97,27 +105,12 @@ final class PencariWebsiteTest extends TestCase
         self::assertNull($this->pencari(['kosong.uji' => []])->cari('kosong.uji'));
     }
 
-    public function testDaftarMenangAtasFolderDomain(): void
+    public function testNamaTerdaftarTetapDikenaliWalauFolderBelumAda(): void
     {
-        $pencari = $this->pencari(['a.uji' => ['lokasi' => $this->folder . '/a.uji']]);
+        $pencari = $this->pencari(['hilang.uji' => ['lokasi' => $this->folder . '/tidak-ada', 'alias' => ['www.hilang.uji']]]);
 
-        self::assertSame($this->folder . '/a.uji/config', $pencari->cari('a.uji', $this->folder . '/x.uji')?->folderConfig);
-    }
-
-    public function testNamaFolderDomainDiambilDariFolderBukanHost(): void
-    {
-        $website = $this->pencari()->cari('penyerang.uji', $this->folder . '/domain.uji');
-
-        self::assertNotNull($website);
-        self::assertSame('domain.uji', $website->host);
-        self::assertSame($this->folder . '/domain.uji/config', $website->folderConfig);
-    }
-
-    public function testFolderDomainDenganNamaTidakSahTidakDitemukan(): void
-    {
-        mkdir($this->folder . '/nama_salah');
-
-        self::assertNull($this->pencari()->cari('domain.uji', $this->folder . '/nama_salah'));
+        self::assertSame('hilang.uji', $pencari->namaTerdaftar('hilang.uji'));
+        self::assertSame('hilang.uji', $pencari->namaTerdaftar('www.hilang.uji'));
     }
 
     public function testHostTakDikenalTidakDitemukan(): void
@@ -125,16 +118,15 @@ final class PencariWebsiteTest extends TestCase
         self::assertNull($this->pencari()->cari('asing.uji'));
     }
 
-    public function testSemuaMenggabungkanDaftarDanTerpusat(): void
+    public function testSemuaHanyaBerisiWebsiteTerdaftar(): void
     {
         $semua = $this->pencari([
             'a.uji'      => ['lokasi' => $this->folder . '/a.uji'],
             'hilang.uji' => ['lokasi' => $this->folder . '/tidak-ada'],
         ])->semua();
 
-        self::assertSame(['a.uji', 'hilang.uji', 'terpusat.uji'], array_keys($semua));
+        self::assertSame(['a.uji', 'hilang.uji'], array_keys($semua));
         self::assertNull($semua['hilang.uji']);
-        self::assertSame('terpusat.uji', $semua['terpusat.uji']?->host);
     }
 
     private function hapus(string $path): void
