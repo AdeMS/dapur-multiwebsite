@@ -19,6 +19,16 @@ final class Halaman
         self::kirim(404, (string) file_get_contents(__DIR__ . '/../templates/website-tidak-ditemukan.html'));
     }
 
+    /** Pengunjung mendapat 404 yang sama: keadaan folder tidak perlu diketahui dari luar. */
+    public static function folderWebsiteBelumAda(string $nama): never
+    {
+        if (PHP_SAPI === 'cli') {
+            self::keluarCli(sprintf("Website '%s' terdaftar, tetapi foldernya tidak ditemukan.", $nama));
+        }
+
+        self::kirim(404, (string) file_get_contents(__DIR__ . '/../templates/website-tidak-ditemukan.html'));
+    }
+
     public static function konfigurasiTidakValid(string $file): never
     {
         if (PHP_SAPI === 'cli') {
