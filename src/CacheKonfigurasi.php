@@ -17,6 +17,9 @@ final class CacheKonfigurasi
     public const TIDAK_DIPERIKSA = 'TIDAK BISA DIPERIKSA (periksa izin folder)';
     public const GAGAL           = 'GAGAL dihapus (periksa izin folder)';
 
+    /** Untuk website terdaftar yang foldernya belum ada; bukan kegagalan. */
+    public const FOLDER_BELUM_ADA = 'folder tidak ditemukan';
+
     public static function hapus(string $file): string
     {
         $folder = dirname($file);
