@@ -43,21 +43,26 @@ final class Bootstrap
             Halaman::websiteTidakDitemukan((string) $asli);
         }
 
-        $pencari      = new PencariWebsite($daftar, $folderInti);
-        $folderDomain = defined('DAPUR_WEBSITE_PATH') ? (string) DAPUR_WEBSITE_PATH : null;
+        $pencari = new PencariWebsite($daftar, $folderInti);
 
         if ($pencari->adalahDashboard($host)) {
             // Dashboard hanya dilayani lewat public/ inti, tidak lewat folder website mana pun
             // (mis. bila vhost website menjadi vhost bawaan dan header Host dipalsukan).
-            if ($folderDomain !== null) {
+            // DAPUR_WEBSITE_PATH menandai request yang masuk lewat index.php folder website.
+            if (defined('DAPUR_WEBSITE_PATH')) {
                 Halaman::websiteTidakDitemukan($host);
             }
 
             return;
         }
 
-        $website = $pencari->cari($host, $folderDomain);
+        $website = $pencari->cari($host);
         if ($website === null) {
+            $nama = $pencari->namaTerdaftar($host);
+            if ($nama !== null) {
+                Halaman::folderWebsiteBelumAda($nama);
+            }
+
             Halaman::websiteTidakDitemukan($host);
         }
 
