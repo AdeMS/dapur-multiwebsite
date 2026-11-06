@@ -212,7 +212,9 @@ Folder `data/` website diisi oleh web server (cache konfigurasi juga memuat pass
 - `data/upload/`: boleh ditulis web server, tetapi berada di luar `public/` dan PHP tidak boleh
   dijalankan di sana.
 
-Folder `data/cache/app` dibuat otomatis bila belum ada.
+Folder `data/cache/app` beserta induknya dibuat otomatis bila belum ada, dengan izin `2770`, agar
+anggota grup bisa menghapus cache dari baris perintah. `dapur-website clear-config-cache` melaporkan
+"tidak bisa diperiksa" dan keluar dengan kode 1 bila izin folder tidak mengizinkan pemeriksaan cache.
 
 ## Pengembangan
 
