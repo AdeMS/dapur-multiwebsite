@@ -53,9 +53,7 @@ final class WebsiteConfigProvider
     private function bawaan(Website $website, array $pengaturan): array
     {
         $folderCache = $website->folderCacheAplikasi();
-        if (! is_dir($folderCache)) {
-            @mkdir($folderCache, 02770, true);
-        }
+        FolderWebsite::buat($folderCache);
 
         return [
             // Pengaturan website, bisa dibaca dari $config['website'].
