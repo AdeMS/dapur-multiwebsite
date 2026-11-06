@@ -11,6 +11,7 @@
 declare(strict_types=1);
 
 use AdeMS\Dapur\MultiWebsite\Bootstrap;
+use AdeMS\Dapur\MultiWebsite\CacheKonfigurasi;
 use AdeMS\Dapur\MultiWebsite\PencariWebsite;
 
 require $GLOBALS['_composer_autoload_path'] ?? dirname(__DIR__, 3) . '/autoload.php';
@@ -48,14 +49,9 @@ switch ($perintah) {
 
         $gagal = false;
         foreach ($file as $nama => $path) {
-            if (! is_file($path)) {
-                printf("%-40s tidak ada cache%s", $nama, PHP_EOL);
-            } elseif (unlink($path)) {
-                printf("%-40s dihapus%s", $nama, PHP_EOL);
-            } else {
-                printf("%-40s GAGAL dihapus (%s)%s", $nama, $path, PHP_EOL);
-                $gagal = true;
-            }
+            $status = CacheKonfigurasi::hapus($path);
+            printf("%-40s %s%s", $nama, $status, PHP_EOL);
+            $gagal = $gagal || ! CacheKonfigurasi::berhasil($status);
         }
         exit($gagal ? 1 : 0);
 
