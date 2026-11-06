@@ -7,12 +7,9 @@ namespace AdeMS\Dapur\MultiWebsite;
 /**
  * Mencari website untuk sebuah nama host.
  *
- * Urutan pencarian (yang dikelola di inti selalu menang):
- * 1. daftar 'website' di config/multiwebsite.local.php (nama host atau alias);
- * 2. folder terpusat config/website/<host>/ di inti;
- * 3. folder domain yang dinyatakan oleh index.php website (konstanta DAPUR_WEBSITE_PATH).
- *    Nama website diambil dari nama folder tersebut, bukan dari request, karena header Host
- *    bisa diisi apa saja oleh pengirim request.
+ * Semua website wajib tercantum di daftar 'website' pada config/multiwebsite.local.php, dicari dari
+ * nama atau aliasnya. Folder yang tidak terdaftar tidak pernah dilayani, walaupun ada.
+ * Website terdaftar yang foldernya belum ada belum dilayani sampai foldernya dibuat.
  */
 final class PencariWebsite
 {
@@ -32,56 +29,45 @@ final class PencariWebsite
         return in_array($host, $this->normalkanSemua($this->daftar['dashboard'] ?? []), true);
     }
 
-    public function cari(string $host, ?string $folderDomain = null): ?Website
+    /** Website untuk host ini, atau null bila tidak terdaftar atau foldernya belum ada. */
+    public function cari(string $host): ?Website
     {
-        // 1. Daftar website: nama website selalu menang atas alias website lain,
-        //    tidak bergantung pada urutan penulisan. Satu website boleh punya banyak alias.
+        $nama = $this->namaTerdaftar($host);
+
+        return $nama !== null ? $this->buat($nama, $this->websiteTerdaftar()[$nama]) : null;
+    }
+
+    /**
+     * Nama website untuk host ini, dari nama atau aliasnya; null bila tidak terdaftar.
+     * Nama website selalu menang atas alias website lain, tidak bergantung pada urutan penulisan.
+     */
+    public function namaTerdaftar(string $host): ?string
+    {
         $terdaftar = $this->websiteTerdaftar();
         if (isset($terdaftar[$host])) {
-            return $this->buat($host, $terdaftar[$host]);
+            return $host;
         }
 
         foreach ($terdaftar as $nama => $data) {
             if (in_array($host, $this->normalkanSemua($data['alias'] ?? []), true)) {
                 // Dibuka lewat alias tetap memakai nama website, sehingga cache dan datanya satu.
-                return $this->buat($nama, $data);
+                return $nama;
             }
-        }
-
-        // 2. Folder terpusat di inti
-        $website = Website::dariInti($host, $this->folderInti);
-        if (is_dir($website->folderConfig)) {
-            return $website;
-        }
-
-        // 3. Folder domain yang memanggil inti; namanya dari nama folder, bukan dari request.
-        if ($folderDomain !== null && $folderDomain !== '' && is_dir($folderDomain)) {
-            $nama = NamaHost::normalkan(basename(rtrim($folderDomain, '/')));
-
-            return $nama !== null ? Website::dariFolderDomain($nama, $folderDomain) : null;
         }
 
         return null;
     }
 
     /**
-     * Semua website yang bisa diketahui dari inti: yang terdaftar dan yang terpusat.
-     * Website folder domain yang tidak terdaftar tidak bisa diketahui dari inti.
+     * Semua website yang terdaftar.
      *
-     * @return array<string, Website|null> nama website => Website (null bila foldernya tidak ada)
+     * @return array<string, Website|null> nama website => Website (null bila foldernya belum ada)
      */
     public function semua(): array
     {
         $hasil = [];
         foreach ($this->websiteTerdaftar() as $nama => $data) {
             $hasil[$nama] = $this->buat($nama, $data);
-        }
-
-        foreach (glob($this->folderInti . '/config/website/*', GLOB_ONLYDIR) ?: [] as $folder) {
-            $nama = NamaHost::normalkan(basename($folder));
-            if ($nama !== null && ! array_key_exists($nama, $hasil)) {
-                $hasil[$nama] = Website::dariInti($nama, $this->folderInti);
-            }
         }
 
         ksort($hasil);
