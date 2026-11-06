@@ -85,17 +85,20 @@ return [
 Host yang tidak dikenal, termasuk akses lewat alamat IP, mendapat halaman
 **"Website tidak ditemukan"** (kode 404) tanpa memuat konfigurasi apa pun.
 
-### Urutan pencarian website
+### Website wajib terdaftar
 
-1. Daftar `website` di `config/multiwebsite.local.php` (nama host atau alias).
-2. Folder terpusat `config/website/<host>/` di inti.
-3. Folder domain yang memanggil inti lewat `public/index.php` miliknya.
+Setiap website wajib tercantum di `website`, sehingga semuanya terlihat dan bisa dikelola dari
+satu tempat. Kedua mode tetap tersedia: `lokasi` boleh menunjuk ke folder mana pun, dan tanpa
+`lokasi` website memakai `config/website/<domain>/` di inti.
 
-Yang dikelola di inti selalu menang atas folder domain.
+| Keadaan | Pengunjung | Baris perintah (`--website=`) |
+|---|---|---|
+| Terdaftar, folder ada | website tampil | berjalan untuk website itu |
+| Terdaftar, folder belum ada | 404 | kode keluar 1, "terdaftar, tetapi foldernya tidak ditemukan" |
+| Tidak terdaftar, folder ada atau tidak | 404 | kode keluar 1, "tidak ditemukan di daftar" |
 
-Nama website folder domain yang tidak terdaftar diambil dari **nama foldernya**, bukan dari
-request, karena header `Host` bisa diisi apa saja oleh pengirim. Karena itu nama folder harus
-berupa nama domain, misalnya `/var/www/contoh.com`.
+Folder tidak dibuat otomatis saat ada request. Website bisa didaftarkan lebih dulu dan mulai
+tampil setelah foldernya dibuat.
 
 ## Susunan folder website
 
@@ -129,7 +132,8 @@ Document root domain mengarah ke `public/` milik website:
 
 declare(strict_types=1);
 
-// Folder website ini
+// Penanda bahwa request masuk lewat folder website: dashboard tidak dilayani dari sini.
+// Website tetap dicari dari daftar website.
 define('DAPUR_WEBSITE_PATH', dirname(__DIR__));
 
 // Jalankan inti Dapur
@@ -188,8 +192,7 @@ composer cek-database -- --website=contoh.com
 ```
 
 Atau pakai variabel lingkungan `DAPUR_WEBSITE=contoh.com`. Tanpa opsi, perintah berjalan untuk
-inti. Website mode folder domain harus tercantum di daftar website agar bisa dipilih dari baris
-perintah.
+inti.
 
 Setelah mengubah `config/multiwebsite.local.php`, `website.php`, daftar modul, atau
 `config/autoload/` website, hapus cache konfigurasi website tersebut.
@@ -197,12 +200,12 @@ Setelah mengubah `config/multiwebsite.local.php`, `website.php`, daftar modul, a
 ## Perintah `dapur-website`
 
 ```bash
-vendor/bin/dapur-website daftar                       # website terdaftar dan terpusat
+vendor/bin/dapur-website daftar                       # semua website terdaftar
 vendor/bin/dapur-website clear-config-cache --semua   # hapus cache konfigurasi inti dan semua website
 ```
 
-Website folder domain yang tidak terdaftar tidak ikut; daftarkan di `config/multiwebsite.local.php`
-agar bisa dikelola dari sini.
+Website yang foldernya belum ada ditampilkan dengan keterangan `folder tidak ditemukan`, tanpa
+dianggap gagal.
 
 ## Izin folder
 
