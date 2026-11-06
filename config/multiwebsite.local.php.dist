@@ -18,7 +18,9 @@ return [
     // mendapat halaman "website tidak ditemukan", bukan dashboard.
     'dashboard' => ['dashboard.contoh.com'],
 
-    // Website yang dilayani. Kuncinya adalah nama website = domain utamanya.
+    // Website yang dilayani. Setiap website WAJIB tercantum di sini; yang tidak tercantum mendapat
+    // halaman "website tidak ditemukan" walaupun foldernya ada. Website yang tercantum tetapi
+    // foldernya belum ada juga belum dilayani. Kuncinya adalah nama website = domain utamanya.
     // 'alias' berisi domain lain (boleh lebih dari satu) yang membuka website yang sama.
     'website' => [
         // Mode folder domain: website punya folder sendiri berisi public/, config/, module/, data/.
@@ -28,8 +30,7 @@ return [
         ],
 
         // Mode terpusat: tanpa 'lokasi', konfigurasi website berada di config/website/<host>/
-        // dan datanya di data/website/<host>/ milik inti. Website terpusat juga ditemukan
-        // otomatis bila foldernya ada, walau tidak dicantumkan di sini; cantumkan bila perlu alias.
+        // dan datanya di data/website/<host>/ milik inti.
         'blog.contoh.com' => [
             'alias' => ['www.blog.contoh.com'],
         ],
