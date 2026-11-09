@@ -18,6 +18,10 @@ return [
     // mendapat halaman "website tidak ditemukan", bukan dashboard.
     'dashboard' => ['dashboard.contoh.com'],
 
+    // Folder induk website baru pada perintah `php dapur buat-website <domain>`. Website dibuat di
+    // <folder_utama>/<domain>. Tanpa pengaturan ini, website baru dibuat terpusat di inti.
+    // 'folder_utama' => '/var/www',
+
     // Website yang dilayani. Setiap website WAJIB tercantum di sini; yang tidak tercantum mendapat
     // halaman "website tidak ditemukan" walaupun foldernya ada. Website yang tercantum tetapi
     // foldernya belum ada juga belum dilayani. Kuncinya adalah nama website = domain utamanya.
