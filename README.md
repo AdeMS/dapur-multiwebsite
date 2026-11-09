@@ -197,12 +197,35 @@ inti.
 Setelah mengubah `config/multiwebsite.local.php`, `website.php`, daftar modul, atau
 `config/autoload/` website, hapus cache konfigurasi website tersebut.
 
-## Perintah `dapur-website`
+## Perintah website
+
+Pada Dapur AdeMS 2.5 atau lebih baru, jalankan dari folder inti:
 
 ```bash
-vendor/bin/dapur-website daftar                       # semua website terdaftar
-vendor/bin/dapur-website clear-config-cache --semua   # hapus cache konfigurasi inti dan semua website
+php dapur buat-website contoh.com
+php dapur buat-website contoh.com --alias=www.contoh.com --judul="Contoh"
+php dapur buat-website contoh.com --lokasi=/srv/contoh.com
+php dapur buat-website blog.contoh.com --terpusat
+php dapur daftar-website
+php dapur clear-config-cache --semua
 ```
+
+Pada Dapur AdeMS 2.4, ganti `php dapur` dengan `vendor/bin/dapur-website`.
+
+Tanpa `--lokasi`, website dibuat di `<folder_utama>/<domain>`. `folder_utama` diatur di
+`config/multiwebsite.local.php`:
+
+```php
+'folder_utama' => '/var/www',
+```
+
+Tanpa `folder_utama`, atau dengan `--terpusat`, website dibuat terpusat di `config/website/<domain>/`.
+
+`buat-website` membuat folder website lengkap, mendaftarkannya, lalu menampilkan ringkasan mode, lokasi,
+judul, dan alias yang dipakai. File yang sudah ada tidak ditimpa, dan pemilik folder tidak diubah. Folder
+`data/` dibuat otomatis oleh web server, jadi web server harus bisa menulis ke lokasi itu. Bila daftar
+website tidak bisa diperbarui secara otomatis, tidak ada yang dibuat, dan perintah menampilkan baris yang
+perlu ditambahkan sendiri.
 
 Website yang foldernya belum ada ditampilkan dengan keterangan `folder tidak ditemukan`, tanpa
 dianggap gagal.
