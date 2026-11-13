@@ -155,6 +155,28 @@ final class Perintah
         return $gagal ? 1 : 0;
     }
 
+    /**
+     * Lokasi log error inti dan semua website, untuk `php dapur log-error --semua` di inti Dapur 2.8 atau lebih
+     * baru. Lokasi website mengikuti bawaan paket ini (data/log/error.log website); website yang foldernya belum
+     * ada bernilai null.
+     *
+     * @return array<string, string|null>|null null bila multi-website belum aktif
+     */
+    public function fileLogErrorSemua(string $fileLogInti): ?array
+    {
+        $semua = $this->semuaWebsite();
+        if ($semua === null) {
+            return null;
+        }
+
+        $file = ['(inti)' => $fileLogInti];
+        foreach ($semua as $nama => $website) {
+            $file[$nama] = $website?->fileLogError();
+        }
+
+        return $file;
+    }
+
     /** @return array<string, Website|null>|null null bila multi-website belum aktif */
     private function semuaWebsite(): ?array
     {
