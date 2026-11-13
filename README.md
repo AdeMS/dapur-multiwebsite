@@ -116,7 +116,7 @@ Document root domain mengarah ke `public/` milik website:
 │   └── website.php        ← judul, tema, daftar modul website
 ├── data/
 │   ├── cache/             ← cache konfigurasi dan cache data aplikasi website
-│   ├── log/
+│   ├── log/               ← log error website (Dapur 2.8 atau lebih baru)
 │   └── upload/
 ├── module/                ← modul khusus website: Nama\ dimuat dari module/Nama/src/
 └── public/
@@ -156,7 +156,7 @@ Urutan penggabungan konfigurasi:
 1. Bawaan inti: paket Laminas/Mezzio, modul `App`, modul inti (`config/modul.local.php`),
    dan `config/autoload/` inti.
 2. Modul pilihan website (`'modul'` di `website.php`).
-3. Bawaan paket ini (folder cache data aplikasi website, route website).
+3. Bawaan paket ini (folder cache data aplikasi website, log error website, route website).
 4. `config/autoload/*.php` milik website.
 
 Karena lapisan website dimuat paling akhir, `config/autoload/database.local.php` milik website
@@ -190,6 +190,8 @@ Tambahkan `-- --website=<host>` pada perintah Composer inti:
 composer clear-config-cache -- --website=contoh.com
 composer cek-database -- --website=contoh.com
 ```
+
+Lewat `php dapur`, opsinya ditulis langsung, misalnya `php dapur log-error --website=contoh.com`.
 
 Atau pakai variabel lingkungan `DAPUR_WEBSITE=contoh.com`. Tanpa opsi, perintah berjalan untuk
 inti.
@@ -239,7 +241,10 @@ Folder `data/` website diisi oleh web server (cache konfigurasi juga memuat pass
   dijalankan di sana.
 
 Folder `data/cache/app` beserta induknya dibuat otomatis bila belum ada, dengan izin `2770`, agar
-anggota grup bisa menghapus cache dari baris perintah. `dapur-website clear-config-cache` melaporkan
+anggota grup bisa menghapus cache dari baris perintah.
+
+Sejak 1.2, log error website (Dapur 2.8 atau lebih baru) ditulis ke `data/log/error.log` milik website itu
+sendiri, bukan ke log inti. Inti membuat folder `data/log/` dengan izin `2770` saat kesalahan pertama terjadi. `dapur-website clear-config-cache` melaporkan
 "tidak bisa diperiksa" dan keluar dengan kode 1 bila izin folder tidak mengizinkan pemeriksaan cache.
 
 ## Pengembangan
