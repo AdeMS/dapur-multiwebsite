@@ -58,4 +58,10 @@ final class Website
     {
         return $this->folderData . '/cache/app';
     }
+
+    /** File log error website (dibuat oleh inti Dapur 2.8 atau lebih baru saat terjadi kesalahan). */
+    public function fileLogError(): string
+    {
+        return $this->folderData . '/log/error.log';
+    }
 }
