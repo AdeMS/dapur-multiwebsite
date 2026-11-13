@@ -14,7 +14,7 @@ use Mezzio\Application;
  * (lewat konstanta DAPUR_CONFIG_PROVIDERS).
  *
  * Urutan di dalamnya: modul pilihan website ('modul' di website.php) -> bawaan paket
- * (folder cache, routes website) -> config/autoload/*.php milik website.
+ * (folder cache, log error, routes website) -> config/autoload/*.php milik website.
  */
 final class WebsiteConfigProvider
 {
@@ -65,6 +65,9 @@ final class WebsiteConfigProvider
                     'options' => ['cache_dir' => $folderCache],
                 ],
             ],
+
+            // Log error milik website sendiri (dipakai inti Dapur 2.8 atau lebih baru).
+            'log' => ['error' => $website->fileLogError()],
 
             // Memuat config/routes.php milik website.
             'dependencies' => [
